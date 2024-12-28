@@ -1,29 +1,34 @@
-import pygame
+from obstacle import Obstacle
+from loaded_assets import obstacle_assets
 
-class Platform:
-    def __init__(self, x, y, width, height, assets):
+class Platform(Obstacle):
+    def __init__(self, metadata, sprite=obstacle_assets["platform"]):
         """
-        Initializes a platform.
-        :param x: X position of the platform.
-        :param y: Y position of the platform.
-        :param width: Width of the platform.
-        :param height: Height of the platform.
+        metadata is expected to include x, y, width, and height
         """
-        self.sprite = assets["platform"]
-        self.sprite = pygame.transform.scale(self.sprite, (width, height))
-        self.rect = pygame.Rect(x, y, width, height)
+        super().__init__(metadata, sprite)
 
-    def draw(self, screen):
+    def handle_horizontal_collision(self, player):
         """
-        Draws the platform on the screen.
-        :param screen: The pygame surface to draw on.
+        Handle horizontal collisions with the player.
         """
-        screen.blit(self.sprite, self.rect.topleft)
+        if player.vel_x > 0: # moving right
+            player.rect.right = self.rect.left
+            player.on_wall = True
+            player.wall_direction = "right"
+        elif player.vel_x < 0: # moving left
+            player.rect.left = self.rect.right
+            player.on_wall = True
+            player.wall_direction = "left"
+        player.vel_x = 0
 
-    def collide(self, player_rect):
+    def handle_vertical_collision(self, player):
         """
-        Checks for a collision with the player.
-        :param player_rect: The player's collision rectangle.
-        :return: True if colliding, False otherwise.
+        Handle vertical collisions with the player.
         """
-        return self.rect.colliderect(player_rect)
+        if player.vel_y > 0: # falling
+            player.rect.bottom = self.rect.top
+            player.on_ground = True
+        elif player.vel_y < 0: # jumping
+            player.rect.top = self.rect.bottom
+        player.vel_y = 0

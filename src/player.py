@@ -3,7 +3,7 @@ import pygame
 from controls import Controls
 
 class Player:
-    def __init__(self, x, y, height, screen, assets):
+    def __init__(self, x, y, height, screen, sprites):
         """
         Initialize the player object.
         :param x: Initial x-coordinate.
@@ -17,7 +17,7 @@ class Player:
         self.y = y
         self.height = height
         self.screen = screen
-        self.assets = assets
+        self.sprites = sprites
         
         # load the player sprite
         self.load_sprites()
@@ -40,10 +40,11 @@ class Player:
         self.jumping = False  # Whether the player is jumping
         self.dashing = False  # Whether the player is dashing
         self.in_dash = False  # Whether the player is dashing
-        self.dash_timer = 0  # Timer for the dash ability
         self.dash_speed = 15  # Speed of the dash
-        self.dash_duration = 10 # Duration of the dash in frames
+        self.dash_timer_duration = 10 # Duration of the dash in frames
+        self.dash_timer = 0  # Timer for the dash ability
         self.dash_direction = 0  # Direction of the dash (1 for right, -1 for left)
+        self.dash_cooldown_duration = 30 # Cooldown duration in frames
         self.dash_cooldown = 0 # Cooldown for the dash ability
         self.last_moving = 1  # Last direction the player was moving
 
@@ -52,18 +53,6 @@ class Player:
         self.animation_timer = 0
 
     def load_sprites(self):
-        self.sprites = {
-            "idle_right": self.assets["player_idle_right"],
-            "idle_left": self.assets["player_idle_left"],
-            "right": self.assets["player_right"],
-            "left": self.assets["player_left"],
-            "jump_right": self.assets["player_jump_right"],
-            "jump_left": self.assets["player_jump_left"],
-            "wallslide_right": self.assets["player_wallslide_right"],
-            "wallslide_left": self.assets["player_wallslide_left"],
-            "dash_right": self.assets["player_dash_right"],
-            "dash_left": self.assets["player_dash_left"]
-        }
         # crop each sprite based on the bounding rect
         for direction in self.sprites:
             for i, sprite in enumerate(self.sprites[direction]):
@@ -72,32 +61,19 @@ class Player:
                 width_height_ratio = self.sprites[direction][i].get_width() / self.sprites[direction][i].get_height()
                 self.sprites[direction][i] = pygame.transform.scale(self.sprites[direction][i], (int(self.height * width_height_ratio), self.height))
 
-    def handle_horizontal_collisions(self, platforms):
+    def handle_horizontal_collisions(self, obstacles):
          self.on_wall = False
          self.wall_direction = None
 
-         for platform in platforms:
-            if self.rect.colliderect(platform):
-                if self.vel_x > 0:  # Moving right
-                    self.rect.right = platform.rect.left
-                    self.on_wall = True
-                    self.wall_direction = "right"
-                elif self.vel_x < 0:  # Moving left
-                    self.rect.left = platform.rect.right
-                    self.on_wall = True
-                    self.wall_direction = "left"
+         for obstacle in obstacles:
+            if obstacle.colliding(self.rect):
+                obstacle.handle_horizontal_collision(self)
 
-    def handle_vertical_collisions(self, platforms):
+    def handle_vertical_collisions(self, obstacles):
         self.on_ground = False
-        for platform in platforms:
-            if self.rect.colliderect(platform):
-                if self.vel_y > 0:  # Falling
-                    self.rect.bottom = platform.rect.top
-                    self.vel_y = 0
-                    self.on_ground = True
-                elif self.vel_y < 0:  # Jumping
-                    self.rect.top = platform.rect.bottom
-                    self.vel_y = 0
+        for obstacle in obstacles:
+            if obstacle.colliding(self.rect):
+                obstacle.handle_vertical_collision(self)
 
     def handle_input(self, keys):
         """
@@ -131,8 +107,8 @@ class Player:
         if not self.in_dash and self.dash_cooldown == 0 and not self.on_wall:
             # start the dash
             self.in_dash = True
-            self.dash_timer = self.dash_duration
-            self.dash_cooldown = 30 # 30 frames cooldown
+            self.dash_timer = self.dash_timer_duration
+            self.dash_cooldown = self.dash_cooldown_duration
             if self.vel_x == 0:
                 # dash in the direction the player was last moving
                 self.dash_direction = self.last_moving
@@ -158,6 +134,7 @@ class Player:
         self.rect.topleft = (self.x, self.y)
         self.vel_x = 0
         self.vel_y = 0
+        self.in_dash = False
 
     def check_out_of_bounds(self, level):
         """Check if the player is out of the level boundaries."""
@@ -169,9 +146,8 @@ class Player:
     def update(self, level, keys):
         """
         Update the player's position and handle collisions.
-        :param platforms: List of platform rectangles for collision detection.
         """
-        platforms = level.platforms
+        obstacles = level.obstacles
 
         self.check_out_of_bounds(level)
 
@@ -198,13 +174,13 @@ class Player:
         self.rect.x += self.vel_x
 
         # Horizontal collision
-        self.handle_horizontal_collisions(platforms)
+        self.handle_horizontal_collisions(obstacles)
 
         # Update vertical position
         self.rect.y += self.vel_y
 
         # Vertical collision
-        self.handle_vertical_collisions(platforms)
+        self.handle_vertical_collisions(obstacles)
 
         # Update the player sprite
         self.update_animation(keys)
@@ -221,10 +197,10 @@ class Player:
             self.sprite = self.sprites["dash_left"][0]
         # moving right
         elif keys[Controls.MOVE_RIGHT.value] and self.on_ground:
-            self.animate("right")
+            self.animate("run_right")
         # moving left
         elif keys[Controls.MOVE_LEFT.value] and self.on_ground:
-            self.animate("left")
+            self.animate("run_left")
         # jumping right
         elif not self.on_ground and not self.on_wall and self.last_moving == 1:
             self.sprite = self.sprites["jump_right"][0]
