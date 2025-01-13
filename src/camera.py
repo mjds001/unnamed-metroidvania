@@ -1,36 +1,51 @@
-class Camera:
-    def __init__(self, screen_width, screen_height, level_width, level_height, box_margin):
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-        self.level_width = level_width
-        self.level_height = level_height
-        self.box_margin = box_margin
+import pygame
+from settings import *
+from pygame.math import Vector2 as vec
 
-        # Camera's position in the game world
-        self.camera_x = 0
-        self.camera_y = 0
 
-    def update(self, player_rect):
-        # Define the safe zone (box)
-        box_left = self.camera_x + self.box_margin
-        box_right = self.camera_x + self.screen_width - self.box_margin
-        box_top = self.camera_y + self.box_margin
-        box_bottom = self.camera_y + self.screen_height - self.box_margin
+class Camera(pygame.sprite.Group):
+    
+    def __init__(self, scene):
+        self.offset = vec() 
+        self.visible_window = pygame.FRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.delay = 10 # add a slight delay so the camera follows just behind target
+        self.scene_size = (scene.width, scene.height)
+        self.player_highlight_radius = TILESIZE*6
+        self.player_highlight = self.add_player_highlight()
 
-        # Move the camera if the player goes outside the box
-        if player_rect.left < box_left:
-            self.camera_x -= box_left - player_rect.left
-        if player_rect.right > box_right:
-            self.camera_x += player_rect.right - box_right
-        if player_rect.top < box_top:
-            self.camera_y -= box_top - player_rect.top
-        if player_rect.bottom > box_bottom:
-            self.camera_y += player_rect.bottom - box_bottom
+    def add_player_highlight(self, color=(255,255,255), brightness=0.5):
+        radius = self.player_highlight_radius
+        surf = pygame.Surface((radius*2, radius*2), pygame.SRCALPHA)
+        for y in range(radius*2):
+            for x in range(radius*2):
+                dist_to_center = ((x - radius)**2 + (y-radius)**2)**0.5
+                if dist_to_center <= radius:
+                    alpha = int(255*brightness * (1-(dist_to_center/radius)))
+                    surf.set_at((x,y), (*color, alpha))
+        return surf
 
-        # Clamp the camera position to the level boundaries
-        self.camera_x = max(0, min(self.camera_x, self.level_width - self.screen_width))
-        self.camera_y = max(0, min(self.camera_y, self.level_height - self.screen_height))
+    def update(self, dt, target):
+        self.offset.x += (target.rect.centerx - SCREEN_WIDTH/2 - self.offset.x) * (self.delay * dt)
+        self.offset.y += (target.rect.centery - SCREEN_HEIGHT/2 - self.offset.y) * (self.delay * dt)
 
-    def apply(self, rect):
-        # Offset a rect by the camera's position
-        return rect.move(-self.camera_x, -self.camera_y)
+        self.offset.x = max(0, min(self.offset.x, self.scene_size[0] - SCREEN_WIDTH))
+        self.offset.y = max(0, min(self.offset.y, self.scene_size[1] - SCREEN_HEIGHT))
+        self.visible_window.x = self.offset.x
+        self.visible_window.y = self.offset.y
+
+    def draw(self, screen, group):
+        for layer in LAYERS:
+            if layer == 'player':
+                for sprite in group:
+                    if self.visible_window.colliderect(sprite.rect) and sprite.z == layer:
+                        offset = sprite.rect.topleft - self.offset
+                        screen.blit(self.player_highlight,
+                                    offset - vec(self.player_highlight_radius - sprite.rect.width/2, self.player_highlight_radius - sprite.rect.height/2),
+                                    )
+                        screen.blit(sprite.image, offset)
+            else:
+                for sprite in group:
+                    if self.visible_window.colliderect(sprite.rect) and sprite.z == layer:
+                        offset = sprite.rect.topleft - self.offset
+                        screen.blit(sprite.image, offset)
+                        #pygame.draw.rect(screen, (255,0,0), sprite.hitbox, 1)
