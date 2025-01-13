@@ -1,0 +1,69 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+        "assets"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "assets/images/preview.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assets/images/test.tsx": {
+            "dynamicWrapping": true
+        },
+        "assets/scenes/0.tmx": {
+            "expandedObjectLayers": [
+                4,
+                2,
+                3
+            ],
+            "scale": 1.00046875,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 477.2762767452757,
+                "y": 370.8261752303608
+            }
+        },
+        "assets/scenes/1.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3
+            ],
+            "scale": 1.00046875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 352.3348430423239,
+                "y": 496.76714040293615
+            }
+        },
+        "assets/scenes/2.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3
+            ],
+            "scale": 1.00046875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 531.2509761049508,
+                "y": 370.8261752303608
+            }
+        }
+    },
+    "last.exportedFilePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/scenes",
+    "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/obstacles",
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+    ],
+    "project": "unnamed_metroidvania.tiled-project",
+    "recentFiles": [
+        "assets/images/preview.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
+}
