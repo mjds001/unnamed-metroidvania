@@ -29,6 +29,7 @@ class OneWayPlatform(Obstacle):
             if character.prev_hitbox.bottom <= self.hitbox.top < character.hitbox.bottom:
                 character.hitbox.bottom = self.hitbox.top
                 character.y_forces.append(-character.gravity * 0.99)
+                character.x_forces.append(self.fric.x * character.vel.x)
                 character.on_ground = True
                 character.vel.y = 0
                 character.rect.centery = character.hitbox.centery

@@ -18,18 +18,22 @@ class NPC(pygame.sprite.Sprite):
             self.image = self.animations['idle_right'][self.frame_index].convert_alpha()
         self.rect = self.image.get_frect(topleft = pos)
         self.hitbox = self.rect.copy().inflate(-self.rect.width*0.3, -self.rect.height*0.2)
-        self.move_force = 2600
+        self.prev_hitbox = self.hitbox.copy() # this will later be used to store the previous timestep position
+        self.move_force = 2300
+        self.max_speed = vec(140, 600)
         self.gravity = 800
         self.acc = vec()
         self.vel = vec()
-        self.fric = -15
-        self.air_fric = -1
         self.y_forces = []
         self.x_forces = []
 
         self.on_ground = False
         self.on_wall = False
-        self.direction = 'right'
+        self.hit = False
+        self.invincible = False
+        self.invincible_timer = 0
+        self.reset_position = False
+        self.direction = 1
         self.state = Idle()
         self.move = {
             'left': True,
@@ -51,17 +55,29 @@ class NPC(pygame.sprite.Sprite):
             else:
                 self.frame_index = len(self.animations[state]) - 1 # keep playing the last animation frame
         self.image = self.animations[state][int(self.frame_index)]
+        if self.invincible_timer > 0 and self.frame_index % 2 == 0:
+            # when the player has invincibility frames, flash the sprite image every other frame
+            # but do not permanently change the image
+            self.image = pygame.Surface((TILESIZE, TILESIZE*1.5))
+            self.image.fill((0,0,0))
+            self.image.set_colorkey((0,0,0))
+            self.image.set_alpha(100)
 
     def get_direction(self, return_int=False):
-        if self.vel.x > 0:
-            self.direction = 'right'
-        elif self.vel.x < 0:
-            self.direction = 'left'
+        if self.hit == True:
+            # if the player was just hit we don't want them to turn around due to knockback
+            pass
+        elif self.vel.x > 0.1:
+            self.direction = 1
+        elif self.vel.x < -0.1:
+            self.direction = -1
+        elif self.on_wall:
+            self.direction = -1*self.direction
 
         if return_int:
-            return 1 if self.direction == 'right' else -1
-        else:
             return self.direction
+        else:
+            return 'right' if self.direction == 1 else 'left'
         
     def movement(self):
         if self.move['left']:
@@ -102,20 +118,24 @@ class NPC(pygame.sprite.Sprite):
         self.prev_hitbox = self.hitbox.copy()
 
         # x direction
-        self.acc.x = self.vel.x * self.fric + sum(self.x_forces)
+        self.acc.x = self.vel.x*AIR_FRIC.x + sum(self.x_forces)
         self.x_forces = []
         self.vel.x += self.acc.x * dt
-        self.hitbox.centerx += self.vel.x * dt + (self.vel.x/2) * dt
+        self.vel.x = max(-self.max_speed.x, min(self.vel.x, self.max_speed.x))
+        self.hitbox.centerx += self.vel.x * dt
         self.rect.centerx = self.hitbox.centerx
         self.collisions('x', self.scene.obstacle_sprites)
         
         # y direction
-        self.acc.y = self.gravity + sum(self.y_forces)
+        self.acc.y = self.gravity + self.vel.y*AIR_FRIC.y + sum(self.y_forces)
         self.y_forces = []
         self.vel.y += self.acc.y * dt
-        self.hitbox.centery += self.vel.y * dt + (self.vel.y/2) * dt
+        self.vel.y = max(-self.max_speed.y, min(self.vel.y, self.max_speed.y))
+        self.hitbox.centery += self.vel.y * dt
         self.rect.centery = self.hitbox.centery
         self.collisions('y', self.scene.obstacle_sprites)
+        if self.on_ground == True and not self.hit:
+            self.last_on_ground_pos = self.hitbox.center
 
     def change_state(self):
         new_state = self.state.enter_state(self)

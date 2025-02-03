@@ -44,6 +44,41 @@ class SplashScreen(State):
         screen.fill(COLORS['blue'])
         self.game.render_text('PRESS SPACE TO START', COLORS['white'], (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
+class Pause(State):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.options = PLAYER_ATTRIBUTES.keys()
+        self.selected_index = 0
+
+    def update(self, dt):
+        if INPUTS['pause'] == True:
+            self.game.states.pop()
+            self.game.reset_inputs()
+        
+        if INPUTS['down']:
+            self.selected_index = min(max(self.selected_index + 1, 0), len(self.options) - 1)
+            self.game.reset_inputs()
+        if INPUTS['up']:
+            self.selected_index = min(max(self.selected_index - 1, 0), len(self.options) - 1)
+            self.game.reset_inputs()
+
+    def draw(self, screen):
+        # continue showing the previous state
+        self.game.states[-2].draw(screen)
+        # draw pause menu and make it semi transparent by adjusting the alpha
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 150))
+        screen.blit(overlay, (0, 0))
+        self.game.render_text('PAUSED', COLORS['white'], (SCREEN_WIDTH/2, 75), font_size = 20)
+        # display the player attributes from settings file
+        for i, attr in enumerate(PLAYER_ATTRIBUTES.keys()):
+            self.game.render_text(f'{attr}: {PLAYER_ATTRIBUTES[attr]}', COLORS['white'], (SCREEN_WIDTH/2, 100 + i * 25), font_size = 20)
+            # highlight the selected option
+            if i == self.selected_index:
+                self.game.render_text(f'{attr}: {PLAYER_ATTRIBUTES[attr]}', COLORS['yellow'], (SCREEN_WIDTH/2, 100 + i * 25), font_size = 20)
+
+
 OBSTACLE_TYPES = {
     "wall": Wall,
     "spike": Spike,
@@ -62,6 +97,8 @@ class Scene(State):
         self.update_sprites = pygame.sprite.Group()
         self.drawn_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
+        # add a custom attribute to the obstacle group so it can be identified later
+        self.obstacle_sprites.is_obstacle_group = True
         self.exit_sprites = pygame.sprite.Group()
         self.tmx_data = load_pygame(f'assets/scenes/{self.current_scene}.tmx')
         self.width = self.tmx_data.width * TILESIZE
@@ -107,8 +144,11 @@ class Scene(State):
     def update(self, dt):
         self.background.update(PHYSICS_DT, self.target)
         self.update_sprites.update(PHYSICS_DT)
-        self.camera.update(dt, self.target)
+        self.camera.update(PHYSICS_DT, self.target)
         self.transition.update(dt)
+        if INPUTS['pause'] == True:
+            Pause(self.game).enter_state()
+            self.game.reset_inputs()
 
     def draw(self, screen):
         self.background.draw(screen)

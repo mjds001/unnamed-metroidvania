@@ -1,6 +1,7 @@
 import pygame
+from pygame.math import Vector2 as vec
 
-from settings import TILESIZE
+from settings import *
 
 class Obstacle(pygame.sprite.Sprite):
     """
@@ -16,6 +17,9 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.copy().inflate(0,0)
         self.z = z
+
+        # define surface friction for horizontal movement and wall slide
+        self.fric = OBSTACLE_FRIC
 
     def draw(self, screen, camera):
         """

@@ -2,6 +2,11 @@ import os
 from PIL import Image
 import shutil
 
+# this script duplicates and flips images in a folder
+
+
+base_path = "assets/characters/santa_merry"
+
 def rename_files_in_folder(folder):
     """Renames all files in a folder to sequential numbers starting from 0."""
     files = sorted(os.listdir(folder))
@@ -43,5 +48,6 @@ def process_character_animations(base_path):
             duplicate_and_flip_folder(folder_path)
 
 
-base_path = "assets/characters/monochrome_ninja"
-process_character_animations(base_path)
+
+if __name__ == "__main__":
+    process_character_animations(base_path)

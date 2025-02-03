@@ -18,9 +18,12 @@ class Game:
         self.splash_screen = SplashScreen(self)
         self.states.append(self.splash_screen)
 
-    def render_text(self, text, color, pos, centered=True, font = None):
+    def render_text(self, text, color, pos, font_size = None, centered=True, font = None):
         if font == None:
-            font = self.font
+            if font_size == None:
+                font = self.font
+            else:
+                font = pygame.font.Font(FONT, font_size)
         surf = font.render(str(text), False, color)
         rect = surf.get_rect(center = pos) if centered else surf.get_rect(topleft = pos)
         self.screen.blit(surf, rect)
@@ -55,9 +58,15 @@ class Game:
                     INPUTS['left'] = True
                 elif event.key == Controls.MOVE_RIGHT.value:
                     INPUTS['right'] = True
+                elif event.key == Controls.DOWN.value:
+                    INPUTS['down'] = True
+                elif event.key == Controls.UP.value:
+                    INPUTS['up'] = True
                 if event.key == Controls.QUIT.value:
                     INPUTS['esc'] = True
                     self.running = False
+                if event.key == Controls.PAUSE.value:
+                    INPUTS['pause'] = True
 
             if event.type == pygame.KEYUP:
                 if event.key == Controls.JUMP.value:
@@ -68,6 +77,10 @@ class Game:
                     INPUTS['left'] = False
                 elif event.key == Controls.MOVE_RIGHT.value:
                     INPUTS['right'] = False
+                elif event.key == Controls.DOWN.value:
+                    INPUTS['down'] = False
+                elif event.key == Controls.UP.value:
+                    INPUTS['up'] = False
 
     def reset_inputs(self):
         for key in INPUTS:
