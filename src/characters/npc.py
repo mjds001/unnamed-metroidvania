@@ -2,9 +2,13 @@ import pygame
 from pygame.math import Vector2 as vec
 
 from settings import *
+from characters.npc_states import *
+from characters.player_states import PLAYER_STATE_INDEX
+from dialog_box import DialogBox
+from dialog_cue import DialogCue
 
 class NPC(pygame.sprite.Sprite):
-    def __init__(self, game, scene, groups, pos, name=None, z='entities'):
+    def __init__(self, game, scene, groups, pos, name=None, custom_properties=None, z='entities'):
         super().__init__(groups)
         self.game = game
         self.scene = scene
@@ -29,16 +33,23 @@ class NPC(pygame.sprite.Sprite):
 
         self.on_ground = False
         self.on_wall = False
+        self.climbing = False
         self.hit = False
         self.invincible = False
+        self.talking = False
         self.invincible_timer = 0
         self.reset_position = False
         self.direction = 1
         self.state = Idle()
         self.move = {
-            'left': True,
+            'left': False,
             'right': False
         }
+        if custom_properties:
+            self.handle_custom_properties(custom_properties)
+
+    def handle_custom_properties(self, custom_properties):
+        pass
 
     def import_images(self, path):
         self.animations = self.game.get_animations(path)
@@ -49,13 +60,16 @@ class NPC(pygame.sprite.Sprite):
 
     def animate(self, state, fps, loop=True):
         self.frame_index += fps
+        # if animation state doesn't exist, default to using idle state
+        if state not in self.animations:
+            state = f'idle_{self.get_direction()}'
         if self.frame_index >= len(self.animations[state]):
             if loop:
                 self.frame_index = 0
             else:
                 self.frame_index = len(self.animations[state]) - 1 # keep playing the last animation frame
         self.image = self.animations[state][int(self.frame_index)]
-        if self.invincible_timer > 0 and self.frame_index % 2 == 0:
+        if self.invincible_timer > 0 and self.frame_index % 2 == 0 and not self.talking:
             # when the player has invincibility frames, flash the sprite image every other frame
             # but do not permanently change the image
             self.image = pygame.Surface((TILESIZE, TILESIZE*1.5))
@@ -71,7 +85,7 @@ class NPC(pygame.sprite.Sprite):
             self.direction = 1
         elif self.vel.x < -0.1:
             self.direction = -1
-        elif self.on_wall:
+        elif self.on_wall and self.name == 'ninja':
             self.direction = -1*self.direction
 
         if return_int:
@@ -114,6 +128,7 @@ class NPC(pygame.sprite.Sprite):
         # initialize this to false- collisions will change to true if found
         self.on_ground = False
         self.on_wall = False
+        self.climbing = False
         # store the most recent hitbox to aid in colliison detection raycasting
         self.prev_hitbox = self.hitbox.copy()
 
@@ -139,7 +154,7 @@ class NPC(pygame.sprite.Sprite):
 
     def change_state(self):
         new_state = self.state.enter_state(self)
-        if new_state: 
+        if new_state:
             self.state = new_state
         else:
             self.state
@@ -149,22 +164,3 @@ class NPC(pygame.sprite.Sprite):
         self.change_state()
         self.state.update(dt, self)
        
-class Idle():
-    def enter_state(self, character):
-        if abs(character.vel.x) > 1:
-            return Run()
-
-    def update(self, dt, character):
-        character.animate(f'idle_{character.get_direction()}', 15*dt)
-        character.movement()
-        character.physics(dt)
-
-class Run:
-    def enter_state(self, character):
-        if abs(character.vel.x) <= 1:
-            return Idle()
-        
-    def update(self, dt, character):
-        character.animate(f'run_{character.get_direction()}', 15*dt)
-        character.movement()
-        character.physics(dt)

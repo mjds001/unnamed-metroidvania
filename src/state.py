@@ -4,13 +4,18 @@ from pytmx.util_pygame import load_pygame
 from settings import *
 from camera import Camera
 from transition import Transition
-from background import Background
-from npc import NPC
-from player import Player
+from backgrounds.parallax_background import ParallaxBackground
+from backgrounds.background import Background
+from characters.npc import NPC
+from characters.friendly_npc import FriendlyNPC
+from characters.random_number_guy import RandomNumberGuy
+from characters.sign import Sign
+from characters.player import Player
 from obstacles.wall import Wall
 from obstacles.spike import Spike
 from obstacles.one_way_platform import OneWayPlatform
 from obstacles.moving_platform import MovingPlatform
+from obstacles.ladder import Ladder
 from collider import Collider
 
 class State():
@@ -66,7 +71,7 @@ class Pause(State):
     def draw(self, screen):
         # continue showing the previous state
         self.game.states[-2].draw(screen)
-        # draw pause menu and make it semi transparent by adjusting the alpha
+        # draw pause menu
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 150))
         screen.blit(overlay, (0, 0))
@@ -79,11 +84,18 @@ class Pause(State):
                 self.game.render_text(f'{attr}: {PLAYER_ATTRIBUTES[attr]}', COLORS['yellow'], (SCREEN_WIDTH/2, 100 + i * 25), font_size = 20)
 
 
-OBSTACLE_TYPES = {
+OBSTACLES = {
     "wall": Wall,
     "spike": Spike,
     "moving_platform": MovingPlatform,
-    "one_way_platform": OneWayPlatform
+    "one_way_platform": OneWayPlatform,
+    "ladder": Ladder
+}
+
+ENTITIES = {
+    "friendly_npc": FriendlyNPC,
+    "random_number_guy": RandomNumberGuy,
+    "sign": Sign
 }
 
 class Scene(State):
@@ -97,13 +109,18 @@ class Scene(State):
         self.update_sprites = pygame.sprite.Group()
         self.drawn_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.dialog = pygame.sprite.Group()
         # add a custom attribute to the obstacle group so it can be identified later
         self.obstacle_sprites.is_obstacle_group = True
+        self.update_sprites.is_update_sprites = True
+        self.drawn_sprites.is_drawn_sprites = True
+        self.dialog.is_dialog = True
         self.exit_sprites = pygame.sprite.Group()
         self.tmx_data = load_pygame(f'assets/scenes/{self.current_scene}.tmx')
         self.width = self.tmx_data.width * TILESIZE
         self.height = self.tmx_data.height * TILESIZE
         self.camera = Camera(self)
+        #self.background = ParallaxBackground(self)
         self.background = Background(self)
         self.transition = Transition(self)
         self.create_scene()
@@ -122,13 +139,13 @@ class Scene(State):
                 gid = self.tmx_data.get_tile_gid(x, y, (layer.id - 1))
                 tile = self.tmx_data.get_tile_properties_by_gid(gid)
                 tile_type = tile.get('type')
-                obstacle_class = OBSTACLE_TYPES[tile_type]
+                obstacle_class = OBSTACLES[tile_type]
                 obstacle_class([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf)
 
         if 'entries' in layers:
             for obj in self.tmx_data.get_layer_by_name('entries'):
                 if obj.name == self.entry_point:
-                    self.player = Player(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x,obj.y), 'ninja')
+                    self.player = Player(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x,obj.y), 'santa_merry')
                     self.target = self.player
 
         if 'exits' in layers:
@@ -137,14 +154,16 @@ class Scene(State):
 
         if 'entities' in layers:
              for obj in self.tmx_data.get_layer_by_name('entities'):
-                 if obj.name == 'npc':
-                    self.npc = NPC(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x, obj.y), 'npc')
+                obj_class = ENTITIES.get(obj.type)
+                if obj_class:
+                    obj_class(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x, obj.y), name=obj.name, custom_properties=obj.properties)
 
 
     def update(self, dt):
         self.background.update(PHYSICS_DT, self.target)
         self.update_sprites.update(PHYSICS_DT)
         self.camera.update(PHYSICS_DT, self.target)
+        self.dialog.update(PHYSICS_DT)
         self.transition.update(dt)
         if INPUTS['pause'] == True:
             Pause(self.game).enter_state()
@@ -153,4 +172,6 @@ class Scene(State):
     def draw(self, screen):
         self.background.draw(screen)
         self.camera.draw(screen, self.drawn_sprites)
+        for dialog in self.dialog:
+            dialog.draw(screen)
         self.transition.draw(screen)

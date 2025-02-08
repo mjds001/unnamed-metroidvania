@@ -1,29 +1,24 @@
-import pygame
 import random
+import pygame
 from pygame.math import Vector2 as vec
 
+from particles.particle import Particle
 
-class Particle(pygame.sprite.Sprite):
+
+class HitParticle(Particle):
     def __init__(self, groups, pos, direction = None, color = (255,255,255), z='particles'):
-        super().__init__(groups)
-        self.z = z
-        self.size = random.randint(4,6)
-        self.color = color
-        self.image = pygame.Surface((self.size, self.size,), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, self.color, (self.size // 2, self.size // 2), self.size // 2)
-        self.rect = self.image.get_rect(center = pos)
+        size = random.randint(4,6)
         if direction == None:
             vel_x = random.uniform(-200, 200)
         elif direction == 1:
             vel_x = random.uniform(0,200)
         elif direction == -1:
             vel_x = random.uniform(-200,0)
-        self.vel = vec(
+        vel = vec(
             vel_x,
             random.uniform(-200,0)
         )
-        self.shrink_rate = 0.1
-        self.gravity = 10
+        super().__init__(groups, pos, vel, size, color, z)
 
     def update(self, dt):
         self.vel.y += self.gravity

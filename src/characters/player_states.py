@@ -1,9 +1,22 @@
 from settings import *
-from particle import Particle
+from particles.hit_particle import HitParticle
+from particles.snowball import Snowball
+
+# index to track which character names are able to enter certain states
+PLAYER_STATE_INDEX = {
+    'ninja': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'on_wall', 'wall_jump', 'dash', 'talking'],
+    'santa_merry': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'talking', 'climbing', 'throw'],
+}
 
 
 class PlayerState():
     def __init__(self, character):
+        # verify that this state is in the list of states for this character name
+        if self.__class__.__name__.lower() not in PLAYER_STATE_INDEX[character.name]:
+            # exit out of this init and the init of any subclasses by saving an invalid state flag
+            self.invalid_state = True
+            return
+        self.invalid_state = False
         character.frame_index = 0
 
     def update(self, dt, character):
@@ -26,6 +39,9 @@ class Idle(PlayerState):
         if INPUTS['jump'] and character.on_ground:
             return Jump(character)
         
+        if INPUTS['throw']:
+            return Throw(character)
+        
         if character.vel.y > 0 and not character.on_wall:
             return Fall(character)
         
@@ -43,6 +59,9 @@ class Run(PlayerState):
         if INPUTS['dash']:
             return Dash(character)
         
+        if INPUTS['throw']:
+            return Throw(character)
+        
         if INPUTS['jump'] and character.on_ground:
             return Jump(character)
         
@@ -55,6 +74,8 @@ class Run(PlayerState):
 class Jump(PlayerState):
     def __init__(self, character):
         super().__init__(character)
+        if self.invalid_state:
+            return
         INPUTS['jump'] = False
         character.y_forces.append(PLAYER_ATTRIBUTES['jump_force'])
         
@@ -67,6 +88,9 @@ class Jump(PlayerState):
         if INPUTS['dash']:
             return Dash(character)
         
+        if INPUTS['throw']:
+            return Throw(character)
+        
         if character.on_wall and not character.on_ground and character.vel.y >= 0:
             return On_Wall(character)
         
@@ -76,6 +100,8 @@ class Jump(PlayerState):
 class WallJump(PlayerState):
     def __init__(self, character):
         super().__init__(character)
+        if self.invalid_state:
+            return
         INPUTS['jump'] = False
         self.timer = 0
         # we want to ignore movement inputs briefly after wall jumps
@@ -115,6 +141,8 @@ class WallJump(PlayerState):
 class Dash(PlayerState):
     def __init__(self, character):
         super().__init__(character)
+        if self.invalid_state:
+            return
         INPUTS['dash'] = False
         self.timer = 0.25
         self.dash_pending = False
@@ -155,6 +183,8 @@ class Dash(PlayerState):
 class On_Wall(PlayerState):
     def __init__(self, character):
         super().__init__(character)
+        if self.invalid_state:
+            return
         # reset velocity to 0 when player lands on wall
         character.vel = vec()
 
@@ -184,13 +214,17 @@ class Fall(PlayerState):
             return On_Wall(character)
         if INPUTS['dash']:
             return Dash(character)
+        if INPUTS['throw']:
+            return Throw(character)
         
 class Hit(PlayerState):
     def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
         character.invincible_timer = 2
         self.hitstun_timer = 1
         self.create_particles(character)
-        super().__init__(character)
 
     def enter_state(self, character):
         if self.hitstun_timer <= 0:
@@ -202,7 +236,7 @@ class Hit(PlayerState):
         
     def create_particles(self, character):
         for n in range(1,10):
-            Particle([character.scene.update_sprites, character.scene.drawn_sprites],
+            HitParticle([character.scene.update_sprites, character.scene.drawn_sprites],
                      character.rect.center,
                      direction = -1*character.get_direction(return_int=True),
                      color = (255, 50, 50))
@@ -214,8 +248,10 @@ class Hit(PlayerState):
 
 class Stun(PlayerState):
     def __init__(self, character):
-        self.stun_timer = 1
         super().__init__(character)
+        if self.invalid_state:
+            return
+        self.stun_timer = 1
     
     def enter_state(self, character):
         if self.stun_timer <= 0:
@@ -225,5 +261,96 @@ class Stun(PlayerState):
         self.stun_timer -= dt
         character.animate(f'idle_{character.get_direction()}', 15*dt)
         character.physics(dt)
+
+class Talking(PlayerState):
+    """
+    if a player is talking, they should not move or enter any other state until the dialog is finished
+    """
+    def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
+        character.talking = True
+        # reset the player velocity to 0 when they start talking
+        character.vel = vec()
+        character.acc = vec()
+        character.x_forces = []
+        character.y_forces = []
+        character.invincible_timer = 1
+        
+    def enter_state(self, character):
+        if not character.talking:
+            character.invincible_timer = 0
+            return Idle(character)
+        
+    def update(self, dt, character):
+        # character should remain invincible while talking
+        character.invincible_timer = 1
+        character.animate(f'talking_{character.get_direction()}', 15*dt)
+        character.physics(dt)
+
+class Climbing(PlayerState):
+    """
+    a state for when the player is climbing a ladder
+    """
+    def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
+        # reset the player velocity to 0 when they start climbing
+        character.vel = vec()
+        character.acc = vec()
+        character.x_forces = []
+        character.y_forces = []
+        self.just_started_climbing = True
+
+    def enter_state(self, character):
+        if character.hit:
+            return Hit(character)
+        if INPUTS['dash']:
+            return Dash(character)
+        if not character.climbing:
+            return Idle(character)
+        if INPUTS['jump']:
+            character.vel = vec()
+            return Jump(character)
+        if character.on_ground and not self.just_started_climbing:
+            return Idle(character)
+        if self.just_started_climbing:
+            self.just_started_climbing = False
+        
+    def update(self, dt, character):
+        character.vel.y = 0
+        character.vel.x = 0
+        if INPUTS['up']:
+            character.vel.y = -character.max_speed[0]
+        elif INPUTS['down']:
+            character.vel.y = character.max_speed[0]
+        # negate the force of gravity
+        character.y_forces.append(-character.gravity)
+
+        if INPUTS['up'] or INPUTS['down']:
+            character.animate(f'{self.__class__.__name__.lower()}_{character.get_direction()}', 15*dt)
+        character.movement()
+        character.physics(dt)
+        
+class Throw(PlayerState):
+    def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
+        INPUTS['throw'] = False
+        self.create_snowball(character)
+
+    def create_snowball(self, character):
+        Snowball([character.scene.update_sprites, character.scene.drawn_sprites],
+                    character.rect.center,
+                    direction = character.get_direction(return_int=True)
+                    )
+
+    def enter_state(self, character):
+        if character.frame_index == len(character.animations[f'{self.__class__.__name__.lower()}_{character.get_direction()}']) - 1:
+            return Idle(character)
+
 
         

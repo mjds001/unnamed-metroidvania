@@ -1,14 +1,17 @@
 from pygame.math import Vector2 as vec
 
-from npc import NPC
+from characters.npc import NPC
 from settings import *
-from player_states import *
+from characters.player_states import *
 
 
 class Player(NPC):
-    def __init__(self, game, scene, groups, pos, name, z='player'):
-        super().__init__(game, scene, groups, pos, name, z)
-        self.hitbox = self.rect.copy().inflate(-self.rect.width*0.7, -self.rect.height*0.2)
+    def __init__(self, game, scene, groups, pos, name, custom_properties=None, z='player'):
+        super().__init__(game, scene, groups, pos, name, custom_properties, z)
+        if self.name == 'ninja':
+            self.hitbox = self.rect.copy().inflate(-self.rect.width*0.7, -self.rect.height*0.2)
+        if self.name == 'santa_merry':
+            self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6, -self.rect.height*0.05)
         self.ground_move_force = 3450
         self.air_move_force = self.ground_move_force*0.3
         self.max_speed = vec(210, 600)
@@ -51,6 +54,19 @@ class Player(NPC):
                 self.scene.new_scene = exit.number
                 self.scene.entry_point = self.scene.current_scene
                 self.scene.transition.exiting = True
+
+    def change_state(self, new_state=None):
+        # if a new state is passed, use that state
+        if new_state:
+            self.state = new_state
+        # if no new state is passed, check if the current state has changed
+        else:
+            new_state = self.state.enter_state(self)
+            # verify that the new state is in the list of states for this character name
+            if new_state and new_state.__class__.__name__.lower() in PLAYER_STATE_INDEX[self.name]:
+                self.state = new_state
+            else:
+                self.state
 
     def update(self, dt):
         self.exit_scene()

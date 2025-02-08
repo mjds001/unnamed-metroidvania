@@ -9,6 +9,7 @@ class Controls(Enum):
     DOWN = pygame.K_DOWN
     UP = pygame.K_UP
     JUMP = pygame.K_SPACE
+    THROW = pygame.K_f
     DASH = pygame.K_z
     QUIT = pygame.K_ESCAPE
     PAUSE = pygame.K_p
@@ -22,7 +23,8 @@ INPUTS = {
     'down': False,
     'up': False,
     'esc': False,
-    'pause': False
+    'pause': False,
+    'throw': False
 }
     
 TILESIZE = 32
@@ -50,7 +52,8 @@ LAYERS = [
     'entities',
     'player',
     'particles',
-    'foreground'
+    'foreground',
+    'ui'
 ]
 
 # player attributes

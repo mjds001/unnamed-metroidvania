@@ -3,7 +3,7 @@
 import os
 import pygame
 
-image_folder = 'assets/characters/santa_fighter'
+image_folder = 'assets/obstacles/signs'
 
 def scale_images(image_folder, target_size=(32, 32)):
     for root, dirs, files in os.walk(image_folder):

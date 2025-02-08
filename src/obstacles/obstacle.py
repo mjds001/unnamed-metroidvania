@@ -35,7 +35,7 @@ class Obstacle(pygame.sprite.Sprite):
         :param player: The player object.
         :return: True if colliding, False otherwise.
         """
-        return self.rect.colliderect(player_rect)
+        return self.hitbox.colliderect(player_rect)
     
     def handle_collisions(self, axis, character):
         """
@@ -45,7 +45,7 @@ class Obstacle(pygame.sprite.Sprite):
         # intentionally left blank to be overridden by subclasses
         pass
 
-    def update(self, obstacles):
+    def update(self, dt):
         """
         to be filled in for sub classes that require updates
         eg. moving platforms

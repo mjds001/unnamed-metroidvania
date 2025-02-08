@@ -62,6 +62,8 @@ class Game:
                     INPUTS['down'] = True
                 elif event.key == Controls.UP.value:
                     INPUTS['up'] = True
+                if event.key == Controls.THROW.value:
+                    INPUTS['throw'] = True
                 if event.key == Controls.QUIT.value:
                     INPUTS['esc'] = True
                     self.running = False
@@ -73,6 +75,8 @@ class Game:
                     INPUTS['jump'] = False
                 if event.key == Controls.DASH.value:
                     INPUTS['dash'] = False
+                if event.key == Controls.THROW.value:
+                    INPUTS['throw'] = False
                 if event.key == Controls.MOVE_LEFT.value:
                     INPUTS['left'] = False
                 elif event.key == Controls.MOVE_RIGHT.value:

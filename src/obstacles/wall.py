@@ -15,7 +15,7 @@ class Wall(Obstacle):
                 character.hitbox.left = self.hitbox.right
             character.on_wall = True
             # add frictional force for sliding on wall if the character is moving down
-            if character.vel.y > 0:
+            if character.vel.y > 0 and character.name == 'ninja':
                 character.y_forces.append(self.fric.y * character.vel.y)
             character.vel.x = 0
             character.rect.centerx = character.hitbox.centerx

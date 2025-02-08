@@ -16,6 +16,9 @@
         "assets/images/test.tsx": {
             "dynamicWrapping": true
         },
+        "assets/obstacles/obstacle_tileset.tsx": {
+            "dynamicWrapping": true
+        },
         "assets/scenes/0.tmx": {
             "expandedObjectLayers": [
                 4,

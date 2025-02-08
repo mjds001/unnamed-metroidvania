@@ -3,7 +3,7 @@ import os
 
 from settings import *
 
-class Background():
+class ParallaxBackground():
     def __init__(self, scene, brighten=False):
         self.base_path = 'assets/backgrounds/cave'
         self.scene = scene
