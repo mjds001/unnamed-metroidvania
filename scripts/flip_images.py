@@ -5,7 +5,7 @@ import shutil
 # this script duplicates and flips images in a folder
 
 
-base_path = "assets/characters/santa_merry"
+base_path = "assets/characters/santa_merry/crush_right"
 
 def rename_files_in_folder(folder):
     """Renames all files in a folder to sequential numbers starting from 0."""
@@ -37,15 +37,30 @@ def duplicate_and_flip_folder(folder):
 
 def process_character_animations(base_path):
     """Processes all folders in the base path for animation states."""
+    folders = []
     for folder_name in os.listdir(base_path):
         folder_path = os.path.join(base_path, folder_name)
         if os.path.isdir(folder_path):
+            folders.append(folder_path)
             if "right" not in folder_path:
                 os.rename(folder_path, f'{folder_path}_right')
                 folder_path = f'{folder_path}_right'
             print(f"Processing folder: {folder_path}")
             rename_files_in_folder(folder_path)
             duplicate_and_flip_folder(folder_path)
+
+    # alternatively give option to just flip images in a specific folder
+    if len(folders) == 0:
+        new_folder = f"{base_path}/flipped_images"
+        os.mkdir(new_folder)
+        for file_name in os.listdir(base_path):
+            if file_name.endswith('.png'):
+                file_path = os.path.join(base_path, file_name)
+                save_path = os.path.join(new_folder, file_name)
+                with Image.open(file_path) as img:
+                    flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
+                    flipped_img.save(save_path)
+
 
 
 

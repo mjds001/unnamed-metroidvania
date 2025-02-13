@@ -12,13 +12,13 @@ class Player(NPC):
             self.hitbox = self.rect.copy().inflate(-self.rect.width*0.7, -self.rect.height*0.2)
         if self.name == 'santa_merry':
             self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6, -self.rect.height*0.05)
-        self.ground_move_force = 3450
+        self.ground_move_force = 3300
         self.air_move_force = self.ground_move_force*0.3
-        self.max_speed = vec(210, 600)
+        self.max_speed = vec(2.63, 7.5)
         self.dash_mult = 1.5
         self.max_dash_speed = self.max_speed.x * self.dash_mult
         self.dash_force = self.ground_move_force * self.dash_mult
-        self.jump_force = -25000
+        self.jump_force = -22000
         # wall jump force is a vector bc we want the player to jump up and away from the wall
         self.wall_jump_force = vec(self.air_move_force*0.8, -self.air_move_force*0.8)
         self.state = Idle(self)
@@ -48,6 +48,12 @@ class Player(NPC):
         self.vel = vec()
         self.acc = vec()
 
+    def go_to_entrypoint(self):
+        self.hitbox.topleft = self.entrypoint
+        self.rect.center = self.hitbox.center
+        self.vel = vec()
+        self.acc = vec()
+
     def exit_scene(self):
         for exit in self.scene.exit_sprites:
             if self.hitbox.colliderect(exit.rect):
@@ -73,3 +79,4 @@ class Player(NPC):
         if self.invincible_timer >= 0:
             self.invincible_timer -= dt
         super().update(dt)
+        #print(self.vel)

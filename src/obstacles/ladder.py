@@ -13,6 +13,8 @@ class Ladder(Obstacle):
         self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6,0)
 
     def handle_collisions(self, axis, character):
+        if character.z != 'player':
+            return
         if axis == 'x':
             return
         if INPUTS['up'] and character.vel.y > 0:

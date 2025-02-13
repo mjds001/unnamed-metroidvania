@@ -3,7 +3,7 @@ import sys
 import os
 
 from settings import *
-from state import SplashScreen
+from states.splash_screen import SplashScreen
 
 class Game:
     def __init__(self):
@@ -69,6 +69,8 @@ class Game:
                     self.running = False
                 if event.key == Controls.PAUSE.value:
                     INPUTS['pause'] = True
+                if event.key == Controls.RESET.value:
+                    INPUTS['reset'] = True
 
             if event.type == pygame.KEYUP:
                 if event.key == Controls.JUMP.value:
@@ -85,6 +87,8 @@ class Game:
                     INPUTS['down'] = False
                 elif event.key == Controls.UP.value:
                     INPUTS['up'] = False
+                if event.key == Controls.RESET.value:
+                    INPUTS['reset'] = False
 
     def reset_inputs(self):
         for key in INPUTS:

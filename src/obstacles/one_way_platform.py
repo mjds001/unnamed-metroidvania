@@ -17,8 +17,8 @@ class OneWayPlatform(Obstacle):
         self.full_rect = self.image.get_rect(topleft = pos)
         self.bounding_rect = self.image.get_bounding_rect()
         self.hitbox = pygame.Rect(
-            self.full_rect.x + self.bounding_rect.x,
-            self.full_rect.y + self.bounding_rect.y,
+            self.full_rect.x,
+            self.full_rect.y,
             self.bounding_rect.width,
             self.bounding_rect.height
         )
@@ -26,10 +26,10 @@ class OneWayPlatform(Obstacle):
     def handle_collisions(self, axis, character):
         # collision detection only happens if the player is above the platform
         if axis == 'y':
-            if character.prev_hitbox.bottom <= self.hitbox.top < character.hitbox.bottom:
+            if (character.prev_hitbox.bottom - 1) <= self.hitbox.top <= character.hitbox.bottom:
                 character.hitbox.bottom = self.hitbox.top
-                character.y_forces.append(-character.gravity * 0.99)
-                character.x_forces.append(self.fric.x * character.vel.x)
+                character.y_forces.append(-GRAVITY * 0.99 * character.mass)
+                character.x_forces.append(self.fric.x * character.vel.x * character.mass)
                 character.on_ground = True
                 character.vel.y = 0
                 character.rect.centery = character.hitbox.centery

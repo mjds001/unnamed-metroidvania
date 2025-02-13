@@ -1,11 +1,15 @@
 from settings import *
 from particles.hit_particle import HitParticle
 from particles.snowball import Snowball
+from particles.particle import Particle
+from states.dead import Dead
+
+import random
 
 # index to track which character names are able to enter certain states
 PLAYER_STATE_INDEX = {
     'ninja': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'on_wall', 'wall_jump', 'dash', 'talking'],
-    'santa_merry': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'talking', 'climbing', 'throw'],
+    'santa_merry': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'talking', 'climbing', 'throw', 'crush'],
 }
 
 
@@ -77,7 +81,7 @@ class Jump(PlayerState):
         if self.invalid_state:
             return
         INPUTS['jump'] = False
-        character.y_forces.append(PLAYER_ATTRIBUTES['jump_force'])
+        character.y_forces.append(character.jump_force)
         
     def enter_state(self, character):
         if character.hit:
@@ -251,6 +255,7 @@ class Stun(PlayerState):
         super().__init__(character)
         if self.invalid_state:
             return
+        character.invincible_timer = 1
         self.stun_timer = 1
     
     def enter_state(self, character):
@@ -327,7 +332,7 @@ class Climbing(PlayerState):
         elif INPUTS['down']:
             character.vel.y = character.max_speed[0]
         # negate the force of gravity
-        character.y_forces.append(-character.gravity)
+        character.y_forces.append(-character.gravity * character.mass)
 
         if INPUTS['up'] or INPUTS['down']:
             character.animate(f'{self.__class__.__name__.lower()}_{character.get_direction()}', 15*dt)
@@ -351,6 +356,35 @@ class Throw(PlayerState):
     def enter_state(self, character):
         if character.frame_index == len(character.animations[f'{self.__class__.__name__.lower()}_{character.get_direction()}']) - 1:
             return Idle(character)
-
-
+        
+class Crush(PlayerState):
+    def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
+        self.rect_bottomleft = character.hitbox.bottomleft
+        
+    def enter_state(self, character):
+        if character.frame_index == len(character.animations[f'{self.__class__.__name__.lower()}_{character.get_direction()}']) - 1:
+            self.create_particles(character)
+            character.kill()
+            Dead(character.game).enter_state()
+            character.game.reset_inputs()
+        
+    def create_particles(self, character):
+        for n in range(1,10):
+            Particle(groups= [character.scene.update_sprites, character.scene.drawn_sprites],
+                        pos= character.rect.center,
+                        vel= vec(random.uniform(-200,200), random.uniform(-200,0)),
+                        size= random.randint(4,6),
+                        color= COLORS['red']
+                        )
+        
+    def update(self, dt, character):
+        character.animate(f'{self.__class__.__name__.lower()}_{character.get_direction()}', 15*dt)
+        image_rect = character.image.get_rect()
+        character.hitbox = image_rect.copy()
+        character.hitbox.bottomleft = self.rect_bottomleft
+        character.rect = character.hitbox.copy()
+        #character.physics(dt)
         

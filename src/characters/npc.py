@@ -25,9 +25,10 @@ class NPC(pygame.sprite.Sprite):
         self.prev_hitbox = self.hitbox.copy() # this will later be used to store the previous timestep position
         self.move_force = 2300
         self.max_speed = vec(140, 600)
-        self.gravity = 800
+        self.gravity = 10
         self.acc = vec()
         self.vel = vec()
+        self.mass = 80
         self.y_forces = []
         self.x_forces = []
 
@@ -117,7 +118,7 @@ class NPC(pygame.sprite.Sprite):
                 if axis == 'y':
                     if self.vel.y >=0: # falling
                         self.hitbox.bottom = sprite.hitbox.top
-                        self.y_forces.append(-self.gravity*0.99) # make this slightly less than g so we don't have 0 force
+                        self.y_forces.append(-GRAVITY*0.99) # make this slightly less than g so we don't have 0 force
                         self.on_ground = True
                     if self.vel.y<=0: # jumping
                         self.hitbox.top = sprite.hitbox.bottom
@@ -133,20 +134,20 @@ class NPC(pygame.sprite.Sprite):
         self.prev_hitbox = self.hitbox.copy()
 
         # x direction
-        self.acc.x = self.vel.x*AIR_FRIC.x + sum(self.x_forces)
+        self.acc.x = (self.vel.x*AIR_FRIC.x + sum(self.x_forces)) / self.mass
         self.x_forces = []
         self.vel.x += self.acc.x * dt
         self.vel.x = max(-self.max_speed.x, min(self.vel.x, self.max_speed.x))
-        self.hitbox.centerx += self.vel.x * dt
+        self.hitbox.centerx += self.vel.x * dt * PX_TO_M
         self.rect.centerx = self.hitbox.centerx
         self.collisions('x', self.scene.obstacle_sprites)
         
         # y direction
-        self.acc.y = self.gravity + self.vel.y*AIR_FRIC.y + sum(self.y_forces)
+        self.acc.y = GRAVITY + ((self.vel.y*AIR_FRIC.y + sum(self.y_forces)) / self.mass)
         self.y_forces = []
         self.vel.y += self.acc.y * dt
         self.vel.y = max(-self.max_speed.y, min(self.vel.y, self.max_speed.y))
-        self.hitbox.centery += self.vel.y * dt
+        self.hitbox.centery += self.vel.y * dt * PX_TO_M
         self.rect.centery = self.hitbox.centery
         self.collisions('y', self.scene.obstacle_sprites)
         if self.on_ground == True and not self.hit:

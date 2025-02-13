@@ -57,6 +57,7 @@
             }
         }
     },
+    "frame.defaultDuration": 100,
     "last.exportedFilePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/scenes",
     "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/obstacles",
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
@@ -64,6 +65,7 @@
     "openFiles": [
     ],
     "project": "unnamed_metroidvania.tiled-project",
+    "property.type": "file",
     "recentFiles": [
         "assets/images/preview.tsx"
     ],

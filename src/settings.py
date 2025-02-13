@@ -13,6 +13,7 @@ class Controls(Enum):
     DASH = pygame.K_z
     QUIT = pygame.K_ESCAPE
     PAUSE = pygame.K_p
+    RESET = pygame.K_r
 
 INPUTS = {
     'escape': False,
@@ -24,7 +25,8 @@ INPUTS = {
     'up': False,
     'esc': False,
     'pause': False,
-    'throw': False
+    'throw': False,
+    'reset': False
 }
     
 TILESIZE = 32
@@ -34,7 +36,9 @@ FONT = 'assets/fonts/dogica.ttf'
 
 # physics
 PHYSICS_DT = 1/60
+GRAVITY = 10 # m/s^2
 AIR_FRIC = vec(-1,-1)
+PX_TO_M = 80 # in game conversion from pixels to meters to try to make the physics make some intuitive sense
 OBSTACLE_FRIC = vec(-15,-5)
 
 COLORS = {

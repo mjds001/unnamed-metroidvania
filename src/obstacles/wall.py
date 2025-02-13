@@ -9,6 +9,7 @@ class Wall(Obstacle):
     def handle_collisions(self, axis, character):
         # handle horizontal collisions with a wall
         if axis == 'x':
+            print('wall x collision')
             if character.vel.x >= 0: # character moving right
                 character.hitbox.right = self.hitbox.left
             elif character.vel.x <=0: # character moving left
@@ -25,9 +26,9 @@ class Wall(Obstacle):
                 character.hitbox.bottom = self.hitbox.top
                 # wall applies normal force on character
                 # make this force slightly less than gravity so there will still be some downward velocity
-                character.y_forces.append(-character.gravity*0.99)
+                character.y_forces.append(-GRAVITY*character.mass*0.99)
                 # add frictional force for walking/running
-                character.x_forces.append(self.fric.x * character.vel.x)
+                character.x_forces.append(self.fric.x * character.vel.x * character.mass)
                 character.on_ground = True
             elif character.vel.y <= 0: # jumping
                 character.hitbox.top = self.hitbox.bottom
