@@ -9,7 +9,7 @@ import random
 # index to track which character names are able to enter certain states
 PLAYER_STATE_INDEX = {
     'ninja': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'on_wall', 'wall_jump', 'dash', 'talking'],
-    'santa_merry': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'talking', 'climbing', 'throw', 'crush'],
+    'santa_merry': ['idle', 'run', 'jump', 'fall', 'hit', 'stun', 'talking', 'climbing', 'throw', 'crush', 'push'],
 }
 
 
@@ -386,5 +386,7 @@ class Crush(PlayerState):
         character.hitbox = image_rect.copy()
         character.hitbox.bottomleft = self.rect_bottomleft
         character.rect = character.hitbox.copy()
-        #character.physics(dt)
-        
+
+class Push(Run):
+    def __init__(self, character):
+        super().__init__(character)

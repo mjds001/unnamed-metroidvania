@@ -6,7 +6,7 @@ from backgrounds.parallax_background import ParallaxBackground
 from backgrounds.background import Background
 from characters.player import Player
 from collider import Collider
-from states.state import State
+from states.state import State, Pause
 
 import pygame
 from pytmx.util_pygame import load_pygame
@@ -59,7 +59,6 @@ class Scene(State):
                 if animation:
                     surf = []
                     for frame in animation:
-                        print(frame)
                         image = self.tmx_data.get_tile_image_by_gid(frame.gid)
                         surf.append(image)
                 tile_type = tile.get('type')
@@ -94,9 +93,12 @@ class Scene(State):
         self.camera.update(PHYSICS_DT, self.target)
         self.dialog.update(PHYSICS_DT)
         self.transition.update(dt)
-        if INPUTS['pause'] == True:
-            Pause(self.game).enter_state()
-            self.game.reset_inputs()
+        if self.game.states[-1] == self:
+            if INPUTS['pause'] == True:
+                Pause(self.game).enter_state()
+                self.game.reset_inputs()
+            if INPUTS['reset'] == True:
+                self.reset_scene()
 
     def draw(self, screen):
         self.background.draw(screen)

@@ -48,4 +48,4 @@ class Camera(pygame.sprite.Group):
                     if self.visible_window.colliderect(sprite.rect) and sprite.z == layer:
                         offset = sprite.rect.topleft - self.offset
                         screen.blit(sprite.image, offset)
-                        #pygame.draw.rect(screen, (255,0,0), sprite.hitbox, 1)
+                        pygame.draw.rect(screen, (255,0,0), sprite.hitbox, 1)

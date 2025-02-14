@@ -13,7 +13,7 @@ class Player(NPC):
         if self.name == 'santa_merry':
             self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6, -self.rect.height*0.05)
         self.ground_move_force = 3300
-        self.air_move_force = self.ground_move_force*0.3
+        self.air_move_force = self.ground_move_force*0.5
         self.max_speed = vec(2.63, 7.5)
         self.dash_mult = 1.5
         self.max_dash_speed = self.max_speed.x * self.dash_mult
