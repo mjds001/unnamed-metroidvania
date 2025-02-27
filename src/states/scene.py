@@ -4,9 +4,11 @@ from camera import Camera
 from transition import Transition
 from backgrounds.parallax_background import ParallaxBackground
 from backgrounds.background import Background
+from backgrounds.snow_background import SnowBackground
 from characters.player import Player
 from collider import Collider
-from states.state import State, Pause
+from states.state import State
+from states.pause import Pause
 
 import pygame
 from pytmx.util_pygame import load_pygame
@@ -20,10 +22,14 @@ class Scene(State):
         self.current_scene = current_scene
         self.entry_point = entry_point
 
+        # save the current game
+        self.game.save_game(self)
+
         self.update_sprites = pygame.sprite.Group()
         self.drawn_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
         self.dialog = pygame.sprite.Group()
+        self.spawn_queue = []
         # add a custom attribute to the obstacle group so it can be identified later
         self.obstacle_sprites.is_obstacle_group = True
         self.update_sprites.is_update_sprites = True
@@ -35,7 +41,8 @@ class Scene(State):
         self.height = self.tmx_data.height * TILESIZE
         self.camera = Camera(self)
         #self.background = ParallaxBackground(self)
-        self.background = Background(self)
+        #self.background = Background(self)
+        self.background = SnowBackground(self)
         self.transition = Transition(self)
         self.create_scene()
 
@@ -64,10 +71,18 @@ class Scene(State):
                 tile_type = tile.get('type')
                 if tile_type in OBSTACLES:
                     obstacle_class = OBSTACLES[tile_type]
-                    obstacle_class([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf)
+                    obstacle_class([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
                 elif tile_type in DYNAMIC_OBJECTS:
                     obj_class = DYNAMIC_OBJECTS[tile_type]
                     obj_class(self.game, self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf)
+                elif tile_type in ITEMS:
+                    # only render the item if it is not already in the player inventory
+                    if tile_type not in self.game.inventory:
+                        obj_class = ITEMS[tile_type]
+                        obj_class(self.game, self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x* TILESIZE, y * TILESIZE), surf= surf, tile=tile)
+                else:
+                    # default to just using obstacle base class
+                    OBSTACLES['obstacle']([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
 
         if 'entries' in layers:
             for obj in self.tmx_data.get_layer_by_name('entries'):
@@ -86,6 +101,15 @@ class Scene(State):
                 if obj_class:
                     obj_class(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x, obj.y), name=obj.name, custom_properties=obj.properties)
 
+    def manage_spawn_queue(self, dt):
+        to_remove = []
+        for sprite in self.spawn_queue:
+            sprite['time_to_spawn'] -= dt
+            if sprite['time_to_spawn'] <= 0:
+                sprite['obj_class'](*sprite['args'])
+                to_remove.append(sprite)
+        for sprite in to_remove:
+            self.spawn_queue.remove(sprite)
 
     def update(self, dt):
         self.background.update(PHYSICS_DT, self.target)
@@ -93,6 +117,7 @@ class Scene(State):
         self.camera.update(PHYSICS_DT, self.target)
         self.dialog.update(PHYSICS_DT)
         self.transition.update(dt)
+        self.manage_spawn_queue(dt)
         if self.game.states[-1] == self:
             if INPUTS['pause'] == True:
                 Pause(self.game).enter_state()

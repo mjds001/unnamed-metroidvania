@@ -1,6 +1,7 @@
 from enum import Enum
 import pygame
 from pygame.math import Vector2 as vec
+from pydub import AudioSegment
 
 
 class Controls(Enum):
@@ -57,6 +58,7 @@ LAYERS = [
     'player',
     'particles',
     'foreground',
+    'lit_particles',
     'ui'
 ]
 
@@ -65,4 +67,14 @@ PLAYER_ATTRIBUTES = {
     'max_speed': vec(210,600),
     'ground_move_force': 3450,
     'jump_force': -25000
+}
+
+
+SAVEPATH = "save_files/game_save.json"
+
+
+# sound stuff
+SOUND_FILES = {
+    'jump': 'assets/sounds/jump.wav',
+    'run': 'assets/sounds/run.wav'
 }

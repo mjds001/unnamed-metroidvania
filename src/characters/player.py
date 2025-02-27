@@ -2,6 +2,7 @@ from pygame.math import Vector2 as vec
 
 from characters.npc import NPC
 from settings import *
+from appendix import *
 from characters.player_states import *
 
 
@@ -12,6 +13,8 @@ class Player(NPC):
             self.hitbox = self.rect.copy().inflate(-self.rect.width*0.7, -self.rect.height*0.2)
         if self.name == 'santa_merry':
             self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6, -self.rect.height*0.05)
+        self.equip_items()
+        
         self.ground_move_force = 3300
         self.air_move_force = self.ground_move_force*0.5
         self.max_speed = vec(2.63, 7.5)
@@ -22,6 +25,18 @@ class Player(NPC):
         # wall jump force is a vector bc we want the player to jump up and away from the wall
         self.wall_jump_force = vec(self.air_move_force*0.8, -self.air_move_force*0.8)
         self.state = Idle(self)
+
+    def equip_items(self):
+        """
+        when entering a new room, initialize the player with the items they
+        had equipped in the previous room
+        """
+        for item, info in self.game.inventory.items():
+            if info['equipped'] == True:
+                item_class = ITEMS[item]
+                item_obj = item_class(self.game, self.scene,
+                                      [self.scene.update_sprites, self.scene.drawn_sprites, self.scene.obstacle_sprites])
+                item_obj.equipped = True
 
     def collisions(self, axis, group):
         for sprite in self.get_collide_list(group):
@@ -79,4 +94,4 @@ class Player(NPC):
         if self.invincible_timer >= 0:
             self.invincible_timer -= dt
         super().update(dt)
-        #print(self.vel)
+        #print(self.rect)

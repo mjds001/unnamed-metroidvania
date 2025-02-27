@@ -3,7 +3,7 @@ from pygame.math import Vector2 as vec
 
 
 class Spike(Obstacle):
-    def __init__(self, groups, pos, surf, z='obstacles'):
+    def __init__(self, groups, pos, surf, z='obstacles', tile = None):
         super().__init__(groups, pos, surf, z)
         self.hitbox = self.rect.copy().inflate(0,0)
         self.knockback_force = vec(10000, -5000)

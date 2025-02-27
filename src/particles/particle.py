@@ -16,11 +16,15 @@ class Particle(pygame.sprite.Sprite):
         self.vel = vel
         self.shrink_rate = 0.1
         self.gravity = 10
+        # track precise position since slow moving particles won't ever change position if
+        # rect change doens't exceed tile size threshold
+        self.precise_pos = vec(self.rect.x, self.rect.y)
 
     def update(self, dt):
         self.vel.y += self.gravity
-        self.rect.x += self.vel.x * dt
-        self.rect.y += self.vel.y * dt
+        self.precise_pos += self.vel * dt
+        self.rect.x = round(self.precise_pos.x)
+        self.rect.y = round(self.precise_pos.y)
         self.hitbox = self.rect.copy()
         self.size = max(0, self.size - self.shrink_rate)
         if self.size <= 0:

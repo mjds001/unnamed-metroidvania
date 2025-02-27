@@ -8,13 +8,18 @@ class DynamicObject(pygame.sprite.Sprite):
     A parent class for in game objects that are affected by physics and
     can interact with in game obstacles
     """
-    def __init__(self, game, scene, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles'):
+    def __init__(self, game, scene, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles', custom_properties = None):
         super().__init__(groups)
         self.game = game
         self.scene = scene
         self.name = None
         self.z = z
-        self.image = surf
+        if isinstance(surf, list):
+            self.frames = surf
+            self.image = self.frames[0]
+            self.frame_index = 0
+        else:
+            self.image = surf
         self.rect = self.image.get_frect(topleft = pos)
         self.hitbox = self.rect.copy().inflate(0,0)
         self.prev_hitbox = self.hitbox.copy()

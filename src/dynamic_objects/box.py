@@ -9,11 +9,11 @@ class Box(DynamicObject):
     """
     A class for a moveable box that the player can push
     """
-    def __init__(self, game, scene, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles'):
+    def __init__(self, game, scene, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles', custom_properties = None):
         super().__init__(game, scene, groups, pos, surf, z)
         self.fric = OBSTACLE_FRIC
         self.mass = 300
-        self.hitbox = self.rect.copy().inflate(-self.rect.width*0.01, -self.rect.height*0.01)
+        self.hitbox = self.rect.copy().inflate(-self.rect.width*0, -self.rect.height*0)
 
 
     def handle_collisions(self, axis, character):

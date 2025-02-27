@@ -8,7 +8,7 @@ class OneWayPlatform(Obstacle):
     These platforms allow the player to jump or move through them from below, but will
     act as a solid surface if the player is above.
     """
-    def __init__(self, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles'):
+    def __init__(self, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles', tile = None):
         """
         metadata may vary depending on the obstacle type.
         At a minimum, metadata should include x, y, width, and height

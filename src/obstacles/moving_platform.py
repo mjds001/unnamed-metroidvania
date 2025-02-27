@@ -6,7 +6,7 @@ import random
 
 
 class MovingPlatform(OneWayPlatform):
-    def __init__(self, groups, pos, surf, z='obstacles'):
+    def __init__(self, groups, pos, surf, z='obstacles', tile = None):
         super().__init__(groups, pos, surf, z)
         self.vel = 60
         self.last_pos = self.rect.copy() # store the previous position

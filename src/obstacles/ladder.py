@@ -8,7 +8,7 @@ class Ladder(Obstacle):
     A class for ladders that the player can climb
     """
 
-    def __init__(self, groups, pos, surf=None, z='obstacles'):
+    def __init__(self, groups, pos, surf=None, z='obstacles', tile = None):
         super().__init__(groups, pos, surf, z)
         self.hitbox = self.rect.copy().inflate(-self.rect.width*0.6,0)
 

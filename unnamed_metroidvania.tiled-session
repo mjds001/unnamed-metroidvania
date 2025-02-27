@@ -3,9 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "assets/scenes/0.tmx",
     "expandedProjectPaths": [
-        "assets"
+        "assets/scenes",
+        ".",
+        "assets/obstacles",
+        "assets",
+        "assets/obstacles/ice_tiles"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -16,20 +20,31 @@
         "assets/images/test.tsx": {
             "dynamicWrapping": true
         },
+        "assets/obstacles/ice_tiles/ice_tileset.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assets/obstacles/item_tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "assets/obstacles/obstacle_tileset.tsx": {
-            "dynamicWrapping": true
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "assets/scenes/0.tmx": {
             "expandedObjectLayers": [
-                4,
                 2,
+                4,
                 3
             ],
             "scale": 1.00046875,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 477.2762767452757,
-                "y": 370.8261752303608
+                "x": 477.77604248008754,
+                "y": 240.38731844447915
             }
         },
         "assets/scenes/1.tmx": {
@@ -38,10 +53,10 @@
                 3
             ],
             "scale": 1.00046875,
-            "selectedLayer": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 352.3348430423239,
-                "y": 496.76714040293615
+                "x": 351.83507730751205,
+                "y": 226.39387786974856
             }
         },
         "assets/scenes/2.tmx": {
@@ -52,21 +67,40 @@
             "scale": 1.00046875,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 531.2509761049508,
-                "y": 370.8261752303608
+                "x": 531.7507418397627,
+                "y": 523.2547243479619
             }
+        },
+        "assets/tiles/ice_tiles/ice_tileset.tsx": {
+            "dynamicWrapping": true
+        },
+        "assets/tiles/items/item_tileset.tsx": {
+            "dynamicWrapping": false
+        },
+        "assets/tiles/obstacle_tileset.tsx": {
+            "dynamicWrapping": true
         }
     },
     "frame.defaultDuration": 100,
     "last.exportedFilePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/scenes",
-    "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/obstacles",
+    "last.externalTilesetPath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/tiles",
+    "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/tiles",
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "openFiles": [
+        "assets/obstacles/ice_tiles/ice_tileset.tsx",
+        "assets/scenes/0.tmx",
+        "assets/obstacles/obstacle_tileset.tsx",
+        "assets/obstacles/item_tileset.tsx"
     ],
     "project": "unnamed_metroidvania.tiled-project",
-    "property.type": "file",
+    "property.type": "string",
     "recentFiles": [
+        "assets/scenes/2.tmx",
+        "assets/obstacles/ice_tiles/ice_tileset.tsx",
+        "assets/obstacles/item_tileset.tsx",
+        "assets/obstacles/obstacle_tileset.tsx",
+        "assets/scenes/0.tmx",
         "assets/images/preview.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",

@@ -53,6 +53,11 @@ class Idle(PlayerState):
             return On_Wall(character)
 
 class Run(PlayerState):
+    def __init__(self, character):
+        super().__init__(character)
+        if self.invalid_state:
+            return
+
     def enter_state(self, character):
         if character.hit:
             return Hit(character)
@@ -74,6 +79,9 @@ class Run(PlayerState):
         
         if character.on_wall and not character.on_ground and character.vel.y >= 0:
             return On_Wall(character)
+        
+    def update(self, dt, character):
+        super().update(dt, character)
         
 class Jump(PlayerState):
     def __init__(self, character):

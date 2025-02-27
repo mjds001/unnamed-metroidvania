@@ -24,7 +24,7 @@ class Snowball(Particle):
     def update(self, dt):
         super().update(dt)
         for sprite in self.drawn_sprites:
-            if sprite.z == 'player' or sprite.z == 'particles' or sprite==self:
+            if sprite.z == 'player' or sprite.z == 'particles' or sprite.z == 'lit_particles' or sprite==self:
                 continue
             if self.hitbox.colliderect(sprite.hitbox):
                 # generate snow splash

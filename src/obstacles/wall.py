@@ -1,7 +1,6 @@
 from obstacles.obstacle import Obstacle
 from settings import *
 
-import pygame
 
 
 class Wall(Obstacle):

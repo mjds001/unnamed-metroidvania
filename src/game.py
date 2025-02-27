@@ -1,13 +1,20 @@
 import pygame
 import sys
 import os
+import json
 
 from settings import *
 from states.splash_screen import SplashScreen
+from states.scene import Scene
+
 
 class Game:
     def __init__(self):
+        pygame.mixer.pre_init(22050, -16, 2, 512)
         pygame.init()
+        pygame.mixer.quit()
+        pygame.mixer.init(22050, -16, 2, 512)
+        self.init_sounds()
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
         self.font = pygame.font.Font(FONT, TILESIZE)
@@ -17,6 +24,18 @@ class Game:
         self.states = []
         self.splash_screen = SplashScreen(self)
         self.states.append(self.splash_screen)
+        self.inventory = {}
+
+    def init_sounds(self):
+        # sound stuff
+        self.sounds = {key: pygame.mixer.Sound(value) for key, value in SOUND_FILES.items()}
+        for sound in self.sounds.values():
+            sound.set_volume(0.1)
+        self.sound_durations = {}
+        for sound, wav in SOUND_FILES.items():
+            audio = AudioSegment.from_file(wav)
+            duration = len(audio) / 1000 # convert to seconds
+            self.sound_durations[sound] = duration
 
     def render_text(self, text, color, pos, font_size = None, centered=True, font = None):
         if font == None:
@@ -28,6 +47,26 @@ class Game:
         rect = surf.get_rect(center = pos) if centered else surf.get_rect(topleft = pos)
         self.screen.blit(surf, rect)
 
+    def save_game(self, scene):
+        save_data = {
+            "inventory": self.inventory,
+            "current_scene": scene.current_scene,
+            "entry_point": scene.entry_point
+        }
+
+        with open(SAVEPATH, "w") as file:
+            json.dump(save_data, file, indent=4)
+
+    def load_game(self, save_file=None):
+        if save_file:
+            with open(save_file, "r") as file:
+                save_data = json.load(file)
+            self.inventory = save_data['inventory']
+            Scene(self, save_data['current_scene'], save_data['entry_point']).enter_state()
+        else:
+            Scene(self, '0', 'begin').enter_state()
+        self.reset_inputs()
+    
     def get_images(self, path):
         images = []
         for file in os.listdir(path):

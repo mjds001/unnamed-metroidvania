@@ -7,13 +7,19 @@ class Obstacle(pygame.sprite.Sprite):
     """
     A generic base class for all obstacles in the game.
     """
-    def __init__(self, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles'):
+    def __init__(self, groups, pos, surf=pygame.Surface((TILESIZE, TILESIZE)), z='obstacles', tile = None):
         """
         metadata may vary depending on the obstacle type.
         At a minimum, metadata should include x, y, width, and height
         """
         super().__init__(groups)
-        self.image = surf
+        # surf can be a single image or a list, if the image has multiple frames
+        if isinstance(surf, list):
+            self.frames = surf
+            self.image = self.frames[0]
+            self.frame_index = 0
+        else:
+            self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.copy().inflate(0,0)
         self.z = z

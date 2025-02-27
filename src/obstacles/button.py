@@ -6,10 +6,8 @@ from settings import *
 
 class Button(Wall):
 
-    def __init__(self, groups, pos, surf, z='obstacles'):
+    def __init__(self, groups, pos, surf, z='obstacles', tile = None):
         # the surf passed in will contain image for button pressed and unpressed
-        self.frames = surf
-        surf = self.frames[0]
         super().__init__(groups, pos, surf, z)
         self.bounding_rect = self.frames[1].get_bounding_rect()
         self.hitbox = pygame.Rect(
