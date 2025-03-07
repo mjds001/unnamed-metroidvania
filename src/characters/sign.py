@@ -5,7 +5,7 @@ fits with the friendly_npc class.
 """
 
 from characters.friendly_npc import FriendlyNPC
-from dialog_cue import DialogCue
+from dialog.dialog_cue import DialogCue
 from settings import *
 
 

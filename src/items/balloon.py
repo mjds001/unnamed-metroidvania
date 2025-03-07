@@ -19,10 +19,10 @@ class Balloon(Item):
         super().__init__(game, scene, groups, pos, surf, z, tile, name, image_path, description)
 
     def update(self, dt):
-        player = self.scene.player
         if self.equipped == False:
             super().update(dt)
             return
+        player = self.scene.player
         self.hitbox.bottom = player.hitbox.top
         self.hitbox.centerx = player.hitbox.centerx
         self.rect.center = self.hitbox.center

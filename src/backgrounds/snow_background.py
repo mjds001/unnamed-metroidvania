@@ -24,6 +24,7 @@ class SnowBackground(Background):
     def update(self, dt, target):
         self.frame_index += 1
         if self.frame_index % 4 == 0:
+            self.frame_index = 0
             SnowParticle(
                 scene = self.scene,
                 groups = [self.scene.update_sprites, self.scene.drawn_sprites],

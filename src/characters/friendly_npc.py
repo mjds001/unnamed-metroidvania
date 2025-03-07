@@ -3,8 +3,8 @@ A class for friendly NPCs that the player can interact with
 """
 
 from characters.npc import NPC
-from dialog_box import DialogBox
-from dialog_cue import DialogCue
+from dialog.dialog_box import DialogBox
+from dialog.dialog_cue import DialogCue
 from characters.player_states import Talking, Idle
 from settings import *
 

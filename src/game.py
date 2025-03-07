@@ -64,13 +64,15 @@ class Game:
             self.inventory = save_data['inventory']
             Scene(self, save_data['current_scene'], save_data['entry_point']).enter_state()
         else:
-            Scene(self, '0', 'begin').enter_state()
+            Scene(self, 'house', 'begin').enter_state()
         self.reset_inputs()
     
     def get_images(self, path):
         images = []
         for file in os.listdir(path):
             full_path = os.path.join(path, file)
+            if not full_path.lower().endswith('.png'):
+                continue
             img = pygame.image.load(full_path).convert_alpha()
             images.append(img)
         return images

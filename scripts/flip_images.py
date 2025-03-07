@@ -5,7 +5,9 @@ import shutil
 # this script duplicates and flips images in a folder
 
 
-base_path = "assets/characters/santa_merry/crush_right"
+#base_path = "assets/characters/penguin"
+base_path = "assets/tiles/items/New folder"
+
 
 def rename_files_in_folder(folder):
     """Renames all files in a folder to sequential numbers starting from 0."""

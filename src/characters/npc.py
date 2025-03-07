@@ -4,8 +4,8 @@ from pygame.math import Vector2 as vec
 from settings import *
 from characters.npc_states import *
 from characters.player_states import PLAYER_STATE_INDEX
-from dialog_box import DialogBox
-from dialog_cue import DialogCue
+from dialog.dialog_box import DialogBox
+from dialog.dialog_cue import DialogCue
 
 class NPC(pygame.sprite.Sprite):
     def __init__(self, game, scene, groups, pos, name=None, custom_properties=None, z='entities'):

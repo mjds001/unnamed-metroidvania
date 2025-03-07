@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="test" tilewidth="64" tileheight="32" tilecount="16" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="test" tilewidth="64" tileheight="32" tilecount="17" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="2" type="wall">
   <image source="black square.png" width="32" height="32"/>
@@ -87,5 +87,11 @@
  </tile>
  <tile id="21">
   <image source="bubble squished.png" width="32" height="32"/>
+ </tile>
+ <tile id="22" type="ladder">
+  <properties>
+   <property name="show" value="false"/>
+  </properties>
+  <image source="ladder_invis.png" width="32" height="32"/>
  </tile>
 </tileset>

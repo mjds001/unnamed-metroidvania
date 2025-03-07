@@ -2,15 +2,14 @@ from settings import *
 from appendix import *
 from camera import Camera
 from transition import Transition
-from backgrounds.parallax_background import ParallaxBackground
-from backgrounds.background import Background
-from backgrounds.snow_background import SnowBackground
 from characters.player import Player
 from collider import Collider
 from states.state import State
 from states.pause import Pause
+from dialog.fading_dialog import FadingDialog
 
 import pygame
+import pytmx
 from pytmx.util_pygame import load_pygame
 
 
@@ -40,9 +39,6 @@ class Scene(State):
         self.width = self.tmx_data.width * TILESIZE
         self.height = self.tmx_data.height * TILESIZE
         self.camera = Camera(self)
-        #self.background = ParallaxBackground(self)
-        #self.background = Background(self)
-        self.background = SnowBackground(self)
         self.transition = Transition(self)
         self.create_scene()
 
@@ -54,13 +50,15 @@ class Scene(State):
 
     def create_scene(self):
         layers = {}
-        for layer in self.tmx_data.layers:
+        tile_layers = []
+        for i, layer in enumerate(self.tmx_data.layers):
             layers[layer.name] = layer
+            if isinstance(layer, pytmx.TiledTileLayer):
+                tile_layers.append((layer, i))
 
-        if 'obstacles' in layers:
-            layer = layers['obstacles']
+        for layer, index in tile_layers:
             for x, y, surf in layer.tiles():
-                gid = self.tmx_data.get_tile_gid(x, y, (layer.id - 1))
+                gid = self.tmx_data.get_tile_gid(x, y, index)
                 tile = self.tmx_data.get_tile_properties_by_gid(gid)
                 animation = tile['frames']
                 if animation:
@@ -71,7 +69,7 @@ class Scene(State):
                 tile_type = tile.get('type')
                 if tile_type in OBSTACLES:
                     obstacle_class = OBSTACLES[tile_type]
-                    obstacle_class([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
+                    obstacle_class(self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
                 elif tile_type in DYNAMIC_OBJECTS:
                     obj_class = DYNAMIC_OBJECTS[tile_type]
                     obj_class(self.game, self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf)
@@ -82,7 +80,7 @@ class Scene(State):
                         obj_class(self.game, self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x* TILESIZE, y * TILESIZE), surf= surf, tile=tile)
                 else:
                     # default to just using obstacle base class
-                    OBSTACLES['obstacle']([self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
+                    OBSTACLES['obstacle'](self, [self.update_sprites, self.drawn_sprites, self.obstacle_sprites], pos=(x * TILESIZE, y * TILESIZE), surf= surf, tile = tile)
 
         if 'entries' in layers:
             for obj in self.tmx_data.get_layer_by_name('entries'):
@@ -90,6 +88,9 @@ class Scene(State):
                     self.player = Player(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x,obj.y), 'santa_merry')
                     self.player.entrypoint = (obj.x, obj.y)
                     self.target = self.player
+                    # check if there is any text to be displayed from this entry point
+                    if hasattr(obj, 'text'):
+                        FadingDialog(self.game, obj.text, [self.dialog])
 
         if 'exits' in layers:
             for obj in self.tmx_data.get_layer_by_name('exits'):
@@ -100,6 +101,17 @@ class Scene(State):
                 obj_class = ENTITIES.get(obj.type)
                 if obj_class:
                     obj_class(self.game, self, [self.update_sprites, self.drawn_sprites], (obj.x, obj.y), name=obj.name, custom_properties=obj.properties)
+
+        if 'background' in layers:
+            layer = self.tmx_data.get_layer_by_name('background')
+            bg_type = getattr(layer, "class", None)
+        else:
+            # default to solid color bg if not specified
+            bg_type = 'solid'
+        if bg_type in COLORS and not bg_type in BACKGROUNDS:
+            self.background = BACKGROUNDS['solid'](self, COLORS[bg_type])
+        else:
+            self.background = BACKGROUNDS[bg_type](self)
 
     def manage_spawn_queue(self, dt):
         to_remove = []

@@ -15,6 +15,7 @@ class Controls(Enum):
     QUIT = pygame.K_ESCAPE
     PAUSE = pygame.K_p
     RESET = pygame.K_r
+    INTERACT = pygame.K_UP
 
 INPUTS = {
     'escape': False,
@@ -48,7 +49,8 @@ COLORS = {
     'blue': (100,100,255),
     'black': (0,0,0),
     'white': (255, 255, 255),
-    'yellow': (255, 255, 100)
+    'yellow': (255, 255, 100),
+    'brown': (150, 75, 0)
 }
 
 LAYERS = [

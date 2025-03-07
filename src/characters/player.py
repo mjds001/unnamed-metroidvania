@@ -57,6 +57,27 @@ class Player(NPC):
         else:
             self.acc.x = 0
 
+    def progress_dialog(self, dialog, dialog_index):
+        # if no dialog is being shown, show the first slide
+        if not self.talking:
+            self.talking = True
+            self.change_state(Talking(self))
+            dialog[dialog_index].show()
+        # if dialog is being shown but has not been fully shown, show the full dialog
+        elif not dialog[dialog_index].full_dialog_shown:
+            dialog[dialog_index].show_full_dialog()
+        # if the dialog is fully shown, hide it and move to the next slide
+        elif dialog[dialog_index].full_dialog_shown:
+            dialog[dialog_index].hide()
+            dialog_index += 1
+            # if there are no more slides, reset the dialog
+            if dialog_index >= len(dialog):
+                dialog_index = 0
+                self.talking = False
+            else:
+                dialog[dialog_index].show()
+        return dialog_index
+
     def go_to_last_ground_pos(self):
         self.hitbox.center = self.last_on_ground_pos
         self.rect.center = self.hitbox.center
@@ -94,4 +115,3 @@ class Player(NPC):
         if self.invincible_timer >= 0:
             self.invincible_timer -= dt
         super().update(dt)
-        #print(self.rect)

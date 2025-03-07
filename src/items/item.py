@@ -35,6 +35,8 @@ class Item(pygame.sprite.Sprite):
         self.precise_pos = vec(self.rect.x, self.rect.y)
 
     def handle_collisions(self, axis, player):
+        if player.z != 'player':
+            return
         if self.equipped:
             return
         else:
@@ -49,12 +51,13 @@ class Item(pygame.sprite.Sprite):
         """
         default to adding a floating affect for items that have not yet been added to the inventory
         """
-        self.precise_pos += self.vel * dt
-        self.rect.x = round(self.precise_pos.x)
-        self.rect.y = round(self.precise_pos.y)
-        self.hitbox = self.rect.copy()
-        if self.rect.y > self.base_y + self.max_travel:
-            self.vel *= -1
-        elif self.rect.y < self.base_y - self.max_travel:
-            self.vel *= -1
+        if self.equipped == False:
+            self.precise_pos += self.vel * dt
+            self.rect.x = round(self.precise_pos.x)
+            self.rect.y = round(self.precise_pos.y)
+            self.hitbox = self.rect.copy()
+            if self.rect.y > self.base_y + self.max_travel:
+                self.vel *= -1
+            elif self.rect.y < self.base_y - self.max_travel:
+                self.vel *= -1
 

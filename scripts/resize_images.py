@@ -3,7 +3,7 @@
 import os
 import pygame
 
-image_folder = 'assets/obstacles/to be resized'
+image_folder = 'assets/tiles/to be resized'
 
 def scale_images(image_folder, target_size=(32, 32)):
     for root, dirs, files in os.walk(image_folder):

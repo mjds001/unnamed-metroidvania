@@ -43,8 +43,8 @@
             "scale": 1.00046875,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 477.77604248008754,
-                "y": 240.38731844447915
+                "x": 492.76901452444173,
+                "y": 366.3282836170545
             }
         },
         "assets/scenes/1.tmx": {
@@ -53,10 +53,10 @@
                 3
             ],
             "scale": 1.00046875,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 351.83507730751205,
-                "y": 226.39387786974856
+                "x": 479.77510541933475,
+                "y": 508.2617523036077
             }
         },
         "assets/scenes/2.tmx": {
@@ -71,7 +71,56 @@
                 "y": 523.2547243479619
             }
         },
+        "assets/scenes/house.tmx": {
+            "expandedObjectLayers": [
+                4,
+                6
+            ],
+            "scale": 1.04796875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 479.97614432682275,
+                "y": 589.2351274787536
+            }
+        },
+        "assets/scenes/npo0.tmx": {
+            "expandedObjectLayers": [
+                2,
+                4,
+                3
+            ],
+            "scale": 1.00046875,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 556.739028580353,
+                "y": 366.3282836170545
+            }
+        },
+        "assets/scenes/npo1.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3
+            ],
+            "scale": 1.00046875,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 410.80743401530526,
+                "y": 508.2617523036077
+            }
+        },
+        "assets/tiles/building_tiles/building_tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInEditor": 1
+        },
         "assets/tiles/ice_tiles/ice_tileset.tsx": {
+            "dynamicWrapping": true
+        },
+        "assets/tiles/inside_house/house_inside.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assets/tiles/inside_house/inside_house.tsx": {
             "dynamicWrapping": true
         },
         "assets/tiles/items/item_tileset.tsx": {
@@ -84,7 +133,7 @@
     "frame.defaultDuration": 100,
     "last.exportedFilePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/scenes",
     "last.externalTilesetPath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/tiles",
-    "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/tiles",
+    "last.imagePath": "C:/Users/Matthew DeSantis/misc_tests/unnamed-metroidvania/assets/tiles/items",
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "openFiles": [
@@ -96,6 +145,8 @@
     "project": "unnamed_metroidvania.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "assets/tiles/inside_house/house_inside.tsx",
+        "assets/tiles/building_tiles/building_tiles.tsx",
         "assets/scenes/2.tmx",
         "assets/obstacles/ice_tiles/ice_tileset.tsx",
         "assets/obstacles/item_tileset.tsx",

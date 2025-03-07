@@ -13,11 +13,21 @@ from obstacles.ladder import Ladder
 from obstacles.button import Button
 from obstacles.switch import Switch
 from obstacles.binary_switch import BinarySwitch
+from obstacles.chimney import Chimney
+from obstacles.indoor_chimney import IndoorChimney
+from obstacles.smoke import Smoke
+from obstacles.fire import Fire
+from obstacles.door import Door
 
 from dynamic_objects.bubble import Bubble
 from dynamic_objects.box import Box
 
 from items.balloon import Balloon
+from items.sunglasses import Sunglasses
+
+from backgrounds.parallax_background import ParallaxBackground
+from backgrounds.background import Background
+from backgrounds.snow_background import SnowBackground
 
 
 import pygame
@@ -33,7 +43,12 @@ OBSTACLES = {
     "ladder": Ladder,
     "button": Button,
     "switch": Switch,
-    'binary_switch': BinarySwitch
+    'binary_switch': BinarySwitch,
+    'chimney': Chimney,
+    'indoor_chimney': IndoorChimney,
+    'smoke': Smoke,
+    'fire': Fire,
+    'door': Door
 }
 
 DYNAMIC_OBJECTS = {
@@ -42,11 +57,18 @@ DYNAMIC_OBJECTS = {
 }
 
 ITEMS = {
-    'balloon': Balloon
+    'balloon': Balloon,
+    'sunglasses': Sunglasses
 }
 
 ENTITIES = {
     "friendly_npc": FriendlyNPC,
     "random_number_guy": RandomNumberGuy,
     "sign": Sign
+}
+
+BACKGROUNDS = {
+    'snow': SnowBackground,
+    'parallax': ParallaxBackground,
+    'solid': Background
 }

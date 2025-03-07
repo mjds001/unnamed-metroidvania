@@ -1,5 +1,11 @@
 {
-    "inventory": {},
-    "current_scene": "0",
-    "entry_point": "begin"
+    "inventory": {
+        "sunglasses": {
+            "image_path": "assets/tiles/items/sunglasses_right.png",
+            "description": "wow these are very cool",
+            "equipped": true
+        }
+    },
+    "current_scene": "house",
+    "entry_point": "npo0"
 }

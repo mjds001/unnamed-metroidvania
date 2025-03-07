@@ -1,5 +1,5 @@
 from characters.friendly_npc import FriendlyNPC
-from dialog_box import DialogBox
+from dialog.dialog_box import DialogBox
 from settings import *
 
 import random

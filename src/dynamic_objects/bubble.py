@@ -25,6 +25,8 @@ class Bubble(DynamicObject):
         self.init_pos = pos
         self.fric = OBSTACLE_FRIC
         self.something_on_bubble = False
+        self.on_bubble_flag = False
+        self.pop_delay = 0
         # add these params to control the bubble floating
         self.vel = vec(0,10)
         self.max_travel = 5
@@ -64,9 +66,10 @@ class Bubble(DynamicObject):
             character.rect.centerx = character.hitbox.centerx
         # handle vertical collisions with a wall
         elif axis == 'y':
-            if (character.prev_hitbox.bottom - 1) <= self.hitbox.top <= character.hitbox.bottom: # falling
-                if self.something_on_bubble == False:
-                    self.something_on_bubble = True
+            if (character.prev_hitbox.bottom - 1) <= self.hitbox.top <= (character.hitbox.bottom): # falling
+                self.something_on_bubble = True
+                if self.on_bubble_flag == False:
+                    self.on_bubble_flag = True
                     self.frame_index += 1
                     self.image = self.frames[self.frame_index]
                 character.hitbox.bottom = self.hitbox.top
@@ -84,7 +87,7 @@ class Bubble(DynamicObject):
     def physics(self, dt):
         self.collisions('x', self.scene.obstacle_sprites)
         self.collisions('y', self.scene.obstacle_sprites)
-        if self.something_on_bubble == False:
+        if self.on_bubble_flag == False: # nothing has landed on bubble yet
             # bubble should oscillate if player is not on it
             if self.rect.y > self.base_y + self.max_travel:
                 self.vel *= -1
@@ -94,13 +97,20 @@ class Bubble(DynamicObject):
             # bubble should fall if player is on it
             if self.vel.y < 0:
                 self.vel *= -1
+            self.pop_delay = 0
             # check if player is still on bubble
-            if not self.scene.player.hitbox.bottom + 3 > self.hitbox.top > self.scene.player.hitbox.bottom - 3:
+            #if not self.scene.player.hitbox.bottom + 3 > self.hitbox.top > self.scene.player.hitbox.bottom - 3:
+                #self.pop()
+        if self.something_on_bubble == False and self.on_bubble_flag == True:
+            if self.pop_delay == 5:
                 self.pop()
+            else:
+                self.pop_delay += 1
         self.precise_pos += self.vel * dt
         self.rect.x = round(self.precise_pos.x)
         self.rect.y = round(self.precise_pos.y)
         self.hitbox.bottomleft = self.rect.bottomleft
+        self.something_on_bubble = False
     
     def update(self, dt):
         self.physics(dt)
